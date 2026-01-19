@@ -40,3 +40,6 @@ const Color lLightGrey4 = Color(0xFFe7e7e8);
 const Color lDialog = Color(0xFF505054);
 const Color lDialog2 = Color(0xFF555555);
 const Color lPDialog2 = Color(0xFF6F6F71);
+
+// Loading Skelton Color
+const Color dLightBlueGrey2 = Color(0xFF373840);

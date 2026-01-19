@@ -2,7 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
 class CustomAppbar {
-  static AppBar show(BuildContext context, enableIcon) {
+  static AppBar show(BuildContext context, enableIcon, titleText) {
     return AppBar(
       elevation: 0,
       centerTitle: true,
@@ -20,7 +20,7 @@ class CustomAppbar {
       title: FadeInDown(
         delay: const Duration(milliseconds: 400),
         duration: const Duration(milliseconds: 1000),
-        child: const Text('Login', style: TextStyle(fontSize: 24)),
+        child:   Text(titleText, style: TextStyle(fontSize: 24)),
       ),
     );
   }

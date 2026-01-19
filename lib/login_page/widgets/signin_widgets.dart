@@ -1,11 +1,12 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_task/registration_page/registration_page.dart';
 import 'package:flutter_task/utils/alerts_and_navigators.dart';
 
 class SignInWidgets {
   static InkWell signUpNavigate(BuildContext context) {
     return InkWell(
-      // onTap: () => nextScreen(context, const UserSignUpPageOne()),
+      onTap: () => nextScreen(context, const RegistrationPage()),
       child: FadeInUp(
         delay: const Duration(milliseconds: 700),
         duration: const Duration(milliseconds: 1000),

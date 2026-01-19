@@ -11,7 +11,7 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       extendBodyBehindAppBar: true,
-      appBar: CustomAppbar.show(context, false),
+      appBar: CustomAppbar.show(context, false, 'Login'),
       body: SingleChildScrollView(
         child: Container(
           constraints: BoxConstraints(

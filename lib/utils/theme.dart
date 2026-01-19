@@ -1,7 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_task/utils/constants.dart';
 
 var mainFont = 'Coco-Gothic-Pro';
+
+void mySystemTheme(BuildContext context) {
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Theme.of(context).colorScheme.brightness,
+      statusBarBrightness: Theme.of(context).colorScheme.brightness,
+      systemNavigationBarColor: Theme.of(context).colorScheme.primaryContainer,
+    ),
+  );
+}
+void changeSystemThemeOnPopup({
+  Color? color,
+  required BuildContext context,
+  Color? statusColor,
+}) {
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: statusColor ?? Colors.transparent,
+      statusBarIconBrightness: Theme.of(context).colorScheme.brightness,
+      statusBarBrightness: Theme.of(context).colorScheme.brightness,
+      systemNavigationBarColor: color ?? const Color(0xFFb8b7bb),
+    ),
+  );
+}
 var lightTheme = ThemeData(
   useMaterial3: false,
   fontFamily: mainFont,
