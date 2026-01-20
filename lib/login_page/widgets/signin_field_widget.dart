@@ -55,7 +55,7 @@ class _SignInFieldWidgetState extends State<SignInFieldWidget> {
       await Future.delayed(const Duration(milliseconds: 600));
       nextScreenRemoveUntil(context, const HomePage());
     } else {
-      customSnackbar(context, 'Invalid email or password.');
+      customSnackbar(context, authProvider.errorMessage ?? 'Login failed');
     }
   }
 

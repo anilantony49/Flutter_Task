@@ -65,7 +65,11 @@ class _SignUpFieldWidgetState extends State<SignUpFieldWidget> {
       await Future.delayed(const Duration(milliseconds: 600));
       nextScreenRemoveUntil(context, const HomePage());
     } else {
-      customSnackbar(context, 'Unable to create account. Please try again.');
+      customSnackbar(
+        context,
+        authProvider.errorMessage ??
+            'Unable to create account. Please try again.',
+      );
     }
   }
 
