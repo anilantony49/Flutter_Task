@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_task/utils/constants.dart';
 
-var mainFont = 'Coco-Gothic-Pro';
+var mainFont = 'Coco-Gothic-Pro-Alt';
 
 void mySystemTheme(BuildContext context) {
   SystemChrome.setSystemUIOverlayStyle(
@@ -14,6 +14,7 @@ void mySystemTheme(BuildContext context) {
     ),
   );
 }
+
 void changeSystemThemeOnPopup({
   Color? color,
   required BuildContext context,
@@ -28,6 +29,7 @@ void changeSystemThemeOnPopup({
     ),
   );
 }
+
 var lightTheme = ThemeData(
   useMaterial3: false,
   fontFamily: mainFont,

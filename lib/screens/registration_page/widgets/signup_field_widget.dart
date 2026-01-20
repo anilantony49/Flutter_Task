@@ -1,59 +1,77 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_task/home_page.dart';
+import 'package:flutter_task/home_page/home_page.dart';
+import 'package:flutter_task/provider/register_auth_provider.dart';
 import 'package:flutter_task/utils/alerts_and_navigators.dart';
 import 'package:flutter_task/utils/constants.dart';
 import 'package:flutter_task/utils/validations.dart';
 import 'package:flutter_task/widgets/custom_button_widget.dart';
 import 'package:flutter_task/widgets/custom_text_form_fields_widget.dart';
+import 'package:provider/provider.dart';
 
-class SignUpOneFieldWidget extends StatefulWidget {
-  const SignUpOneFieldWidget({super.key});
+// ignore: must_be_immutable
+class SignUpFieldWidget extends StatefulWidget {
+  const SignUpFieldWidget({super.key});
 
   @override
-  State<SignUpOneFieldWidget> createState() => _SignUpOneFieldWidgetState();
+  State<SignUpFieldWidget> createState() => _SignUpFieldWidgetState();
 }
 
-class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
-  final TextEditingController fullnameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
+class _SignUpFieldWidgetState extends State<SignUpFieldWidget> {
+  late TextEditingController fullnameController = TextEditingController();
+
+  late TextEditingController emailController = TextEditingController();
+
+  late TextEditingController passwordController = TextEditingController();
+
+  late TextEditingController confirmPasswordController =
       TextEditingController();
+
   final GlobalKey<FormState> formKey = GlobalKey();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  bool isLoading = false;
-  bool isPasswordHidden = true;
-  bool isConfirmPasswordHidden = true;
+  @override
+  void initState() {
+    super.initState();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    fullnameController = TextEditingController();
+    confirmPasswordController = TextEditingController();
+  }
 
-  Future<void> registerUser() async {
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    fullnameController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _register(BuildContext context) async {
+    final authProvider = context.read<RegisterAuthProvider>();
     if (!formKey.currentState!.validate()) return;
 
     if (passwordController.text != confirmPasswordController.text) {
       customSnackbar(context, 'Passwords do not match');
       return;
     }
+    final success = await authProvider.register(
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+    );
 
-    try {
-      setState(() => isLoading = true);
-
-      await _auth.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-
+    if (success) {
+      customSnackbar(context, 'Account created successfully!');
+      await Future.delayed(const Duration(milliseconds: 600));
       nextScreenRemoveUntil(context, const HomePage());
-    } on FirebaseAuthException {
+    } else {
       customSnackbar(context, 'Unable to create account. Please try again.');
-    } finally {
-      setState(() => isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<RegisterAuthProvider>();
     return FadeInDown(
       delay: const Duration(milliseconds: 400),
       duration: const Duration(milliseconds: 1000),
@@ -128,15 +146,13 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
                   }
                   return null;
                 },
-                obscureText: isPasswordHidden,
+                obscureText: authProvider.isPasswordHidden,
                 suffix: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isPasswordHidden = !isPasswordHidden;
-                    });
-                  },
+                  onTap: authProvider.togglePasswordVisibility,
                   child: Icon(
-                    isPasswordHidden ? Icons.visibility_off : Icons.visibility,
+                    authProvider.isPasswordHidden
+                        ? Icons.visibility_off
+                        : Icons.visibility,
                     size: 20,
                     color: Theme.of(context).colorScheme.secondary,
                   ),
@@ -157,15 +173,11 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
                   }
                   return null;
                 },
-                obscureText: isConfirmPasswordHidden,
+                obscureText: authProvider.isConfirmPasswordHidden,
                 suffix: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isConfirmPasswordHidden = !isConfirmPasswordHidden;
-                    });
-                  },
+                  onTap: authProvider.toggleConfirmPasswordVisibility,
                   child: Icon(
-                    isConfirmPasswordHidden
+                    authProvider.isConfirmPasswordHidden
                         ? Icons.visibility_off
                         : Icons.visibility,
                     size: 20,
@@ -178,12 +190,9 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
               // Register button
               CustomButton(
                 buttonText: 'Register',
-                onPressed: () {
-                  if (formKey.currentState!.validate()) {
-                    isLoading ? null : registerUser();
-                    nextScreen(context, HomePage());
-                  }
-                },
+                isLoading: authProvider.isLoading,
+                onPressed:
+                    authProvider.isLoading ? null : () => _register(context),
               ),
             ],
           ),

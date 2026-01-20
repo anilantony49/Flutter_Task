@@ -1,14 +1,28 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_task/provider/register_auth_provider.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/login_auth_provider.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.buttonText, this.onPressed});
+  const CustomButton({
+    super.key,
+    required this.buttonText,
+    required this.isLoading,
+    this.onPressed,
+  });
 
   final String buttonText;
+  final bool isLoading;
   final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final loginAuthProvider = context.watch<LoginAuthProvider>();
+    final registerAuthProvider = context.watch<RegisterAuthProvider>();
+
     var theme = Theme.of(context);
 
     return SizedBox(
@@ -17,17 +31,29 @@ class CustomButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
         color: theme.colorScheme.primary,
-        onPressed: onPressed,
+        onPressed: isLoading ? () {} : onPressed,
         child: FadeInUp(
           delay: const Duration(milliseconds: 400),
           duration: const Duration(milliseconds: 1000),
-          child: Text(
-            buttonText,
-            style: TextStyle(
-              fontSize: 16,
-              color: theme.colorScheme.onPrimaryContainer,
-            ),
-          ),
+          child:
+              loginAuthProvider.isLoading || registerAuthProvider.isLoading
+                  ? SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: Center(
+                      child: CupertinoActivityIndicator(
+                        radius: 12,
+                        color: theme.colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  )
+                  : Text(
+                    buttonText,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
         ),
       ),
     );

@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 
-const fontWeightW300 = <FontVariation>[FontVariation('wght', 300.0)];
+// const fontWeightW300 = <FontVariation>[FontVariation('wght', 300.0)];
 const fontWeightRegular = <FontVariation>[FontVariation('wght', 400.0)];
-const fontWeightW500 = <FontVariation>[FontVariation('wght', 500.0)];
-const fontWeightW600 = <FontVariation>[FontVariation('wght', 600.0)];
 const fontWeightW700 = <FontVariation>[FontVariation('wght', 700.0)];
-const fontWeightW800 = <FontVariation>[FontVariation('wght', 800.0)];
-const fontWeightW900 = <FontVariation>[FontVariation('wght', 900.0)];
 
 SizedBox kHeight(double? height) => SizedBox(height: height);
 SizedBox kWidth(double? width) => SizedBox(width: width);
