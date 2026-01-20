@@ -4,11 +4,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_task/login_page/login_page.dart';
 import 'package:flutter_task/utils/alerts_and_navigators.dart';
-import 'package:flutter_task/utils/constants.dart';
-import 'package:flutter_task/utils/theme.dart';
-import 'package:flutter_task/widgets/custom_button_widget.dart';
-import 'package:flutter_task/widgets/custom_text_form_fields_widget.dart';
-
+ import 'package:flutter_task/widgets/custom_button_widget.dart';
+ 
 class SignUpWidgets {
   static FadeInUp signInNavigate(BuildContext context) {
     return FadeInUp(
@@ -27,7 +24,13 @@ class SignUpWidgets {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              const TextSpan(text: 'Sign In.'),
+              TextSpan(
+                text: 'Sign In.',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ],
           ),
         ),

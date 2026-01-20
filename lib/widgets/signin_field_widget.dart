@@ -176,8 +176,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:animate_do/animate_do.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_task/home_page.dart';
+import 'package:flutter_task/utils/alerts_and_navigators.dart';
 import 'package:flutter_task/utils/constants.dart';
+import 'package:flutter_task/utils/validations.dart';
 import 'package:flutter_task/widgets/custom_button_widget.dart';
 import 'package:flutter_task/widgets/custom_text_form_fields_widget.dart';
 
@@ -189,11 +193,33 @@ class SignInFieldWidget extends StatefulWidget {
 }
 
 class _SignInFieldWidgetState extends State<SignInFieldWidget> {
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool isLoading = false;
+
   bool isPasswordHidden = true;
+
+  Future<void> loginUser() async {
+    if (!formKey.currentState!.validate()) return;
+
+    try {
+      setState(() => isLoading = true);
+
+      await _auth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      nextScreenRemoveUntil(context, const HomePage());
+    } on FirebaseAuthException {
+      customSnackbar(context, 'Invalid email or password.');
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -204,6 +230,7 @@ class _SignInFieldWidgetState extends State<SignInFieldWidget> {
         padding: const EdgeInsets.fromLTRB(40, 40, 40, 30),
         child: Form(
           key: formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -230,13 +257,16 @@ class _SignInFieldWidgetState extends State<SignInFieldWidget> {
 
               kHeight(25),
 
-              /// Username
+              // Email address field
               CustomTxtFormField(
-                controller: usernameController,
-                hintText: 'Username',
-                validator: (value) {
-                  if (value == null || value.length < 4) {
-                    return 'Username should not be empty';
+                hintText: 'Email address',
+                controller: emailController,
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Email is required';
+                  }
+                  if (!RegExp(emailRegexPattern).hasMatch(val) || val.isEmpty) {
+                    return 'Enter a valid email';
                   }
                   return null;
                 },
@@ -262,8 +292,11 @@ class _SignInFieldWidgetState extends State<SignInFieldWidget> {
                   ),
                 ),
                 validator: (value) {
-                  if (value == null || value.length < 4) {
-                    return 'Password should not be empty';
+                  if (value == null || value.isEmpty) {
+                    return 'Password is required';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
                   }
                   return null;
                 },
@@ -275,25 +308,25 @@ class _SignInFieldWidgetState extends State<SignInFieldWidget> {
               CustomButton(
                 buttonText: 'Login',
                 onPressed: () {
-                  // if (formKey.currentState!.validate()) {
-                  //   // 🔹 Add API / Firebase / local auth logic here
+                  if (formKey.currentState!.validate()) {
+                    isLoading ? null : loginUser();
 
-                  //   nextScreenRemoveUntil(context, const MainPage());
-                  //   mySystemTheme(context);
+                    //   nextScreenRemoveUntil(context, const MainPage());
+                    //   mySystemTheme(context);
 
-                  //   setState(() {
-                  //     isPasswordHidden = true;
-                  //   });
-                  // }
+                    //   setState(() {
+                    //     isPasswordHidden = true;
+                    //   });
+                  }
                 },
               ),
 
               kHeight(10),
 
-              /// Forgot Password
+              /// Forgot Password (Link only – no functionality)
               InkWell(
                 onTap: () {
-                  // nextScreen(context, const ForgotPasswordPage());
+                  // No functionality required
                 },
                 child: Align(
                   alignment: Alignment.centerLeft,
@@ -301,6 +334,7 @@ class _SignInFieldWidgetState extends State<SignInFieldWidget> {
                     'Forget Password?',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),

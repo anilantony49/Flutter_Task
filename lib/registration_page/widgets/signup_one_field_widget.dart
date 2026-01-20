@@ -1,7 +1,8 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_task/home_page.dart';
- import 'package:flutter_task/utils/alerts_and_navigators.dart';
+import 'package:flutter_task/utils/alerts_and_navigators.dart';
 import 'package:flutter_task/utils/constants.dart';
 import 'package:flutter_task/utils/validations.dart';
 import 'package:flutter_task/widgets/custom_button_widget.dart';
@@ -21,6 +22,36 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool isLoading = false;
+  bool isPasswordHidden = true;
+  bool isConfirmPasswordHidden = true;
+
+  Future<void> registerUser() async {
+    if (!formKey.currentState!.validate()) return;
+
+    if (passwordController.text != confirmPasswordController.text) {
+      customSnackbar(context, 'Passwords do not match');
+      return;
+    }
+
+    try {
+      setState(() => isLoading = true);
+
+      await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      nextScreenRemoveUntil(context, const HomePage());
+    } on FirebaseAuthException {
+      customSnackbar(context, 'Unable to create account. Please try again.');
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FadeInDown(
@@ -28,6 +59,7 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
       duration: const Duration(milliseconds: 1000),
       child: Form(
         key: formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(40, 0, 40, 0),
           child: Column(
@@ -56,7 +88,10 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
                 hintText: 'Full name',
                 controller: fullnameController,
                 validator: (val) {
-                  if (val!.length < 3) {
+                  if (val == null || val.isEmpty) {
+                    return 'Name is required';
+                  }
+                  if (val.length < 2) {
                     return 'Please enter a valid name';
                   }
                   return null;
@@ -69,8 +104,10 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
                 hintText: 'Email address',
                 controller: emailController,
                 validator: (val) {
-                  if (!RegExp(emailRegexPattern).hasMatch(val!) ||
-                      val.isEmpty) {
+                  if (val == null || val.isEmpty) {
+                    return 'Email is required';
+                  }
+                  if (!RegExp(emailRegexPattern).hasMatch(val)) {
                     return 'Enter a valid email';
                   }
                   return null;
@@ -83,18 +120,23 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
                 hintText: 'Password',
                 controller: passwordController,
                 validator: (val) {
-                  if (!RegExp(passowrdRegexPattern).hasMatch(val!)) {
+                  if (val == null || val.isEmpty) {
+                    return 'Password is required';
+                  }
+                  if (!RegExp(passowrdRegexPattern).hasMatch(val)) {
                     return 'Passwords should be 8 characters, at least one number and one special character';
                   }
                   return null;
                 },
-                obscureText: false,
+                obscureText: isPasswordHidden,
                 suffix: GestureDetector(
                   onTap: () {
-                    // context.read<TogglePasswordCubit>().toggle();
+                    setState(() {
+                      isPasswordHidden = !isPasswordHidden;
+                    });
                   },
                   child: Icon(
-                    Icons.visibility,
+                    isPasswordHidden ? Icons.visibility_off : Icons.visibility,
                     size: 20,
                     color: Theme.of(context).colorScheme.secondary,
                   ),
@@ -107,18 +149,25 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
                 hintText: 'Confirm password',
                 controller: confirmPasswordController,
                 validator: (val) {
-                  if (!RegExp(passowrdRegexPattern).hasMatch(val!)) {
+                  if (val == null || val.isEmpty) {
+                    return 'Password is required';
+                  }
+                  if (!RegExp(passowrdRegexPattern).hasMatch(val)) {
                     return 'Passwords should be 8 characters, at least one number and one special character';
                   }
                   return null;
                 },
-                obscureText: false,
+                obscureText: isConfirmPasswordHidden,
                 suffix: GestureDetector(
                   onTap: () {
-                    // context.read<TogglePasswordCubit>().toggle();
+                    setState(() {
+                      isConfirmPasswordHidden = !isConfirmPasswordHidden;
+                    });
                   },
                   child: Icon(
-                    Icons.visibility,
+                    isConfirmPasswordHidden
+                        ? Icons.visibility_off
+                        : Icons.visibility,
                     size: 20,
                     color: Theme.of(context).colorScheme.secondary,
                   ),
@@ -131,6 +180,7 @@ class _SignUpOneFieldWidgetState extends State<SignUpOneFieldWidget> {
                 buttonText: 'Register',
                 onPressed: () {
                   if (formKey.currentState!.validate()) {
+                    isLoading ? null : registerUser();
                     nextScreen(context, HomePage());
                   }
                 },

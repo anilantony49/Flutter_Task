@@ -15,7 +15,7 @@ class SignInWidgets {
           TextSpan(
             children: [
               TextSpan(
-                text: "Don't have an account yet? ",
+                text: "Don't have an account? ",
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
@@ -24,6 +24,7 @@ class SignInWidgets {
                 text: 'Register.',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onPrimary,
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ],
